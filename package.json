@@ -1,0 +1,39 @@
+{
+  "name": "@zdavison/strangler",
+  "version": "1.0.0",
+  "private": false,
+  "description": "A utility for swapping out implementations at runtime, and comparing them over time to avoid regressions.",
+  "repository": "https://github.com/meetsmore/meetsmore",
+  "license": "MIT",
+  "author": "MeetsMore Inc",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "clean": "rm -rf ./dist",
+    "lint": "biome check --write src/",
+    "test": "jest",
+    "watch": "tsc -b -w --preserveWatchOutput"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.1",
+    "@types/jest": "^24.9.0",
+    "@types/node": "^20.11.24",
+    "@biomejs/biome": "^1.5.3",
+    "jest": "^29.3.1",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.2",
+    "tsup": "^6.7.0"
+  }
+}

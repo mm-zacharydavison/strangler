@@ -1,0 +1,19 @@
+---
+description: When running commands or making changes to the package.json
+globs: 
+alwaysApply: false
+---
+
+# Project Tools
+
+This project uses the following tools you will need to be aware of to run commands.
+
+- `nvm` -> for managing node version.
+- `pnpm` -> for package management.
+- `jest` -> for tests.
+- `biome` -> for linting.
+
+# Running Commands
+
+`nvm` is in use, the node version will have global tools like `pnpm` installed.
+If you want to run a command like `pnpm`, run `nvm use` first.
