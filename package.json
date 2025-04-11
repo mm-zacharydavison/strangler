@@ -1,6 +1,6 @@
 {
   "name": "@zdavison/strangler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "A utility for swapping out implementations at runtime, and comparing them over time to avoid regressions.",
   "repository": "https://github.com/mm-zacharydavison/strangler",
@@ -24,7 +24,8 @@
     "clean": "rm -rf ./dist",
     "lint": "biome check --write src/",
     "test": "jest",
-    "watch": "tsc -b -w --preserveWatchOutput"
+    "watch": "tsc -b -w --preserveWatchOutput",
+    "publish-pkg": "pnpm run build && pnpm publish --access public --no-git-checks"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.1",
