@@ -155,3 +155,8 @@ pnpm install @zdavison/strangler
 # unit tests
 pnpm test
 ```
+
+# Contributors
+
+`Strangler` was developed at [MeetsMore](http://meetsmore.com/) and then open sourced.
+@GuillaumeDecMeetsMore contributed multiple features.
