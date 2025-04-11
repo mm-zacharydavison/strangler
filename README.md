@@ -2,14 +2,12 @@
 
 Strangler is a library that helps you build a new API by gradually migrating from an old one.
 
-It's designed to be used with NestJS, but nothing is stopping you from using it anywhere you like.
-
 It provides you a few features:
 
 - Swapping out a service implementation at runtime using feature flags.
 - Swapping out only individual methods.
 - Falling back to old implementation if the new one is not implemented yet.
-- Optionally running both implementations at the same time and logging any differences in return value, or duration.
+- ⭐ Optionally running both implementations at the same time and logging any differences in return value, or duration.
 
 Fundamentally, it allows you to do this:
 
