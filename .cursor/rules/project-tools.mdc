@@ -8,6 +8,7 @@ alwaysApply: false
 
 This project uses the following tools you will need to be aware of to run commands.
 
+- `jj` -> for version control.
 - `nvm` -> for managing node version.
 - `pnpm` -> for package management.
 - `jest` -> for tests.

@@ -17,10 +17,10 @@
     "allowJs": true,
     "checkJs": false,
     "noEmit": false,
-    "incremental": true,
-    "composite": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
