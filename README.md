@@ -1,5 +1,3 @@
-![image](https://github.com/user-attachments/assets/f0f7829d-fd3d-4c20-bad0-cff6e13de0c8)
-
 ## 🎋 Strangler
 
 Strangler is a library that helps you build a new API by gradually migrating from an old one.
@@ -12,6 +10,8 @@ It provides you a few features:
 - ⭐ Optionally running both implementations at the same time and logging any differences in return value, or duration.
 
 # Use Case
+
+![image](https://github.com/user-attachments/assets/f0f7829d-fd3d-4c20-bad0-cff6e13de0c8)
 
 A common usage for Strangler is for refactoring code that has no specification or test coverage.
 
