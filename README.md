@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/f0f7829d-fd3d-4c20-bad0-cff6e13de0c8)
+
 ## 🎋 Strangler
 
 Strangler is a library that helps you build a new API by gradually migrating from an old one.
@@ -8,6 +10,19 @@ It provides you a few features:
 - Swapping out only individual methods.
 - Falling back to old implementation if the new one is not implemented yet.
 - ⭐ Optionally running both implementations at the same time and logging any differences in return value, or duration.
+
+# Use Case
+
+A common usage for Strangler is for refactoring code that has no specification or test coverage.
+
+1. We have a `SearchService` that searches for results.
+2. We want to refactor it to use a different backend.
+3. We use Strangler to run both in parallel in production and compare whenever inputs result in different outputs (or worse performance).
+4. Everytime Strangler logs in Datadog, we add a new test case and fix the regression.
+
+You can also simply use it to feature flag implementations of things.
+
+# Examples
 
 Fundamentally, it allows you to do this:
 
