@@ -11,7 +11,7 @@ It provides you a few features:
 
 # Use Case
 
-![image](https://github.com/user-attachments/assets/f0f7829d-fd3d-4c20-bad0-cff6e13de0c8)
+![image](https://github.com/user-attachments/assets/6bfbbef7-f4df-4596-93e0-d0c275edf462)
 
 A common usage for Strangler is for refactoring code that has no specification or test coverage.
 
