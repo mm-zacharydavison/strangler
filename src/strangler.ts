@@ -5,6 +5,21 @@ export type AsyncService = {
 }
 
 /**
+ * The result of the equality function.
+ */
+export type OnEqualityResult = {
+  /**
+   * Whether the values are equal.
+   */
+  isEqual: boolean
+  /**
+   * Additional metadata that can be used to identify the difference.
+   * Used to pass around data to the onComparison callback in case of difference(s), possibly preventing the need to re-run the equality function in order to log the difference(s).
+   */
+  metadata?: unknown
+}
+
+/**
  * A callback to be executed during any '-compare' modes.
  *
  * You can use this to log any differences, for example.
@@ -38,6 +53,12 @@ export type OnComparison = (comparison: {
    * The arguments that were passed to the function.
    */
   parameters: unknown[]
+
+  /**
+   * Additional metadata that were returned by the equality function.
+   * Often used to pass around data to this function in case of difference(s), which can prevent the need to re-run the equality function in order to log the difference(s).
+   */
+  equalityMetadata: unknown
 }) => void
 
 /**
@@ -81,9 +102,10 @@ export interface StranglerConfig {
    * The equality function to use to test if results are identical.
    *
    * @default `JSON.stringify(a) === JSON.stringify(b)`
-   * @returns `true` if the values are equal, false otherwise.
+   * @returns `{ isEqual: boolean; metadata: unknown }` where `isEqual` is true if the values are equal, false otherwise.
+   * `metadata` is additional metadata that can be used to identify the difference.
    */
-  equalityFn?: (a: unknown, b: unknown, parameters?: unknown) => boolean
+  equalityFn?: (a: unknown, b: unknown, parameters?: unknown) => OnEqualityResult
 
   /**
    * If true, will wait for the comparison to complete before returning the result.
@@ -97,7 +119,9 @@ export interface StranglerConfig {
 const defaultConfig: Required<StranglerConfig> = {
   acceptableDurationDifference: 300,
   logger: console,
-  equalityFn: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  equalityFn: (a, b) => ({
+    isEqual: JSON.stringify(a) === JSON.stringify(b),
+  }),
   waitForComparison: false,
 }
 
@@ -172,7 +196,9 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
       if (typeof method === 'function') {
         return async (...args: unknown[]) => {
           const mode = await featureFlag()
-          const hasNewImplementation = prop in newImplementation && typeof (newImplementation as any)[prop] === 'function'
+          const hasNewImplementation =
+            prop in newImplementation &&
+            typeof (newImplementation as Record<string, unknown>)[prop] === 'function'
           const isCompareMode = mode === 'new-compare' || mode === 'old-compare'
 
           if (!isValidMode(mode)) {
@@ -228,9 +254,9 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
 
                   try {
                     const durationDifference = newDuration - oldDuration
-                    const areEqual = fullConfig.equalityFn(oldValue, newValue, args)
+                    const { isEqual, metadata } = fullConfig.equalityFn(oldValue, newValue, args)
 
-                    if (!areEqual || durationDifference > fullConfig.acceptableDurationDifference) {
+                    if (!isEqual || durationDifference > fullConfig.acceptableDurationDifference) {
                       onComparison({
                         oldResult: oldValue,
                         newResult: newValue,
@@ -238,6 +264,7 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
                         newDuration: newDuration,
                         methodName: prop,
                         parameters: args,
+                        equalityMetadata: metadata,
                       })
                     }
                   } catch (error) {

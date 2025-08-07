@@ -1,6 +1,6 @@
 {
   "name": "@zdavison/strangler",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "private": false,
   "description": "A utility for swapping out implementations at runtime, and comparing them over time to avoid regressions.",
   "repository": "https://github.com/mm-zacharydavison/strangler",

@@ -461,6 +461,53 @@ describe('Strangler', () => {
         }),
       )
     })
+
+    it('WILL include the equality metadata in the onComparison result.', async () => {
+      const comparisons: any[] = []
+      featureFlag = async () => 'new-compare'
+
+      // Create a promise that will resolve when onComparison is called
+      let resolveComparisonPromise: () => void
+      const comparisonPromise = new Promise<void>((resolve) => {
+        resolveComparisonPromise = resolve
+      })
+
+      const service = Strangler(
+        featureFlag,
+        newImpl,
+        oldImpl,
+        (comparison) => {
+          comparisons.push(comparison)
+          resolveComparisonPromise()
+        },
+        {
+          equalityFn: (a, b) => ({
+            isEqual: a === b,
+            metadata: {
+              failingPath: 'createdBy',
+              scheduleId: '123',
+            },
+          }),
+        },
+      )
+
+      const result = await service.method1()
+
+      // Wait for the comparison to be completed
+      await comparisonPromise
+
+      expect(comparisons).toHaveLength(1)
+      expect(comparisons[0]).toMatchObject({
+        oldResult: 'old',
+        newResult: 'new',
+        methodName: 'method1',
+      })
+      expect(result).toBe('new')
+      expect(comparisons[0].equalityMetadata).toEqual({
+        failingPath: 'createdBy',
+        scheduleId: '123',
+      })
+    })
   })
   describe('Configuration Features.', () => {
     it('WILL support configuring the performance threshold', async () => {
