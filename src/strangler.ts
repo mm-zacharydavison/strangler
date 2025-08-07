@@ -102,7 +102,7 @@ export interface StranglerConfig {
    * The equality function to use to test if results are identical.
    *
    * @default `JSON.stringify(a) === JSON.stringify(b)`
-   *    * @returns `{ isEqual: boolean; metadata: unknown }` where `isEqual` is true if the values are equal, false otherwise.
+   * @returns `{ isEqual: boolean; metadata: unknown }` where `isEqual` is true if the values are equal, false otherwise.
    * `metadata` is additional metadata that can be used to identify the difference.
    */
   equalityFn?: (a: unknown, b: unknown, parameters?: unknown) => OnEqualityResult
