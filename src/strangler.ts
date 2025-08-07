@@ -1,8 +1,8 @@
-export type AsyncFunction = (...args: unknown[]) => Promise<unknown>;
+export type AsyncFunction = (...args: unknown[]) => Promise<unknown>
 export type AsyncService = {
   // biome-ignore lint/suspicious/noExplicitAny: TODO: Make these types stricter.
-  [K in keyof any]: K extends string ? AsyncFunction | any : any;
-};
+  [K in keyof any]: K extends string ? AsyncFunction | any : any
+}
 
 /**
  * The result of the equality function.
@@ -11,13 +11,13 @@ export type OnEqualityResult = {
   /**
    * Whether the values are equal.
    */
-  isEqual: boolean;
+  isEqual: boolean
   /**
    * Additional metadata that can be used to identify the difference.
    * Used to pass around data to the onComparison callback in case of difference(s), possibly preventing the need to re-run the equality function in order to log the difference(s).
    */
-  metadata?: unknown;
-};
+  metadata?: unknown
+}
 
 /**
  * A callback to be executed during any '-compare' modes.
@@ -30,36 +30,36 @@ export type OnComparison = (comparison: {
    *
    * Can be either a value or an error, if an error was thrown.
    */
-  oldResult: unknown;
+  oldResult: unknown
   /**
    * The 'new' (1st position) implementations result.
    *
    * Can be either a value or an error, if an error was thrown.
    */
-  newResult: unknown;
+  newResult: unknown
   /**
    * 'old' duration in milliseconds.
    */
-  oldDuration: number;
+  oldDuration: number
   /**
    * 'new' duration in milliseconds.
    */
-  newDuration: number;
+  newDuration: number
   /**
    * The name of the method that was invoked.
    */
-  methodName: string;
+  methodName: string
   /**
    * The arguments that were passed to the function.
    */
-  parameters: unknown[];
+  parameters: unknown[]
 
   /**
    * Additional metadata that were returned by the equality function.
    * Often used to pass around data to this function in case of difference(s), which can prevent the need to re-run the equality function in order to log the difference(s).
    */
-  equalityMetadata: unknown;
-}) => void;
+  equalityMetadata: unknown
+}) => void
 
 /**
  * A runtime 'feature flag' for changing the strangler mode.
@@ -69,7 +69,7 @@ export type OnComparison = (comparison: {
  *
  * We error check the value to make sure it is a valid `StranglerMode`.
  */
-export type FeatureFlag = () => Promise<string>;
+export type FeatureFlag = () => Promise<string>
 
 /**
  * The different possible modes available.
@@ -78,7 +78,7 @@ export type FeatureFlag = () => Promise<string>;
  * - 'new-compare': Use the 'new' implementation, but run the 'old' in parallel and compare them.
  * - 'old-compare': Use the 'old' implementation, but run the 'new' in parallel and compare them.
  */
-export type StranglerMode = "old" | "new" | "old-compare" | "new-compare";
+export type StranglerMode = 'old' | 'new' | 'old-compare' | 'new-compare'
 
 /**
  * Configuration for Strangler.
@@ -91,13 +91,13 @@ export interface StranglerConfig {
    *
    * @default 300ms
    */
-  acceptableDurationDifference?: number;
+  acceptableDurationDifference?: number
   /**
    * Logger object with methods for different logging levels.
    *
    * @default console
    */
-  logger?: Partial<typeof console>;
+  logger?: Partial<typeof console>
   /**
    * The equality function to use to test if results are identical.
    *
@@ -105,11 +105,7 @@ export interface StranglerConfig {
    *    * @returns `{ isEqual: boolean; metadata: unknown }` where `isEqual` is true if the values are equal, false otherwise.
    * `metadata` is additional metadata that can be used to identify the difference.
    */
-  equalityFn?: (
-    a: unknown,
-    b: unknown,
-    parameters?: unknown
-  ) => OnEqualityResult;
+  equalityFn?: (a: unknown, b: unknown, parameters?: unknown) => OnEqualityResult
 
   /**
    * If true, will wait for the comparison to complete before returning the result.
@@ -117,7 +113,7 @@ export interface StranglerConfig {
    *
    * @default false
    */
-  waitForComparison?: boolean;
+  waitForComparison?: boolean
 }
 
 const defaultConfig: Required<StranglerConfig> = {
@@ -127,7 +123,7 @@ const defaultConfig: Required<StranglerConfig> = {
     isEqual: JSON.stringify(a) === JSON.stringify(b),
   }),
   waitForComparison: false,
-};
+}
 
 /**
  * A utility type for creating an interface from an existing class.
@@ -145,8 +141,8 @@ const defaultConfig: Required<StranglerConfig> = {
  * ```
  */
 export type I<T> = {
-  [K in keyof T]: T[K];
-};
+  [K in keyof T]: T[K]
+}
 
 /**
  * An error that is thrown while executing a Strangled operation.
@@ -160,9 +156,9 @@ export class ExecutionError extends Error {
     /// The error that was thrown causing this execution to fail.
     public readonly cause: unknown,
     /// The duration in milliseconds of the execution.
-    public readonly duration: number
+    public readonly duration: number,
   ) {
-    super(cause instanceof Error ? cause.message : String(cause));
+    super(cause instanceof Error ? cause.message : String(cause))
   }
 }
 
@@ -183,71 +179,59 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
   newImplementation: { [P in K]: T[P] },
   oldImplementation: T,
   onComparison?: OnComparison,
-  config?: StranglerConfig
+  config?: StranglerConfig,
 ): T {
   const fullConfig = {
     ...defaultConfig,
     ...config,
-  };
+  }
 
   const isValidMode = (mode: string): mode is StranglerMode =>
-    ["old", "new", "old-compare", "new-compare"].includes(mode);
+    ['old', 'new', 'old-compare', 'new-compare'].includes(mode)
 
   return new Proxy(oldImplementation, {
     get(target, prop: string) {
-      const method = target[prop];
+      const method = target[prop]
 
-      if (typeof method === "function") {
+      if (typeof method === 'function') {
         return async (...args: unknown[]) => {
-          const mode = await featureFlag();
+          const mode = await featureFlag()
           const hasNewImplementation =
             prop in newImplementation &&
-            typeof (newImplementation as Record<string, unknown>)[prop] ===
-              "function";
-          const isCompareMode =
-            mode === "new-compare" || mode === "old-compare";
+            typeof (newImplementation as Record<string, unknown>)[prop] === 'function'
+          const isCompareMode = mode === 'new-compare' || mode === 'old-compare'
 
           if (!isValidMode(mode)) {
-            fullConfig.logger.error?.(
-              new Error(`Invalid StranglerMode: ${mode}`)
-            );
+            fullConfig.logger.error?.(new Error(`Invalid StranglerMode: ${mode}`))
             // Fallback to 'old' implementation.
-            return (oldImplementation[prop] as AsyncFunction).apply(
-              oldImplementation,
-              args
-            );
+            return (oldImplementation[prop] as AsyncFunction).apply(oldImplementation, args)
           }
 
           // Compare mode.
           if (hasNewImplementation && isCompareMode) {
             const executeMethod = async (impl: AsyncService) => {
-              const start = performance.now();
+              const start = performance.now()
               try {
-                const result = await (impl[prop] as AsyncFunction).apply(
-                  impl,
-                  args
-                );
+                const result = await (impl[prop] as AsyncFunction).apply(impl, args)
                 return {
                   result,
                   duration: performance.now() - start,
-                };
+                }
               } catch (error) {
-                throw new ExecutionError(error, performance.now() - start);
+                throw new ExecutionError(error, performance.now() - start)
               }
-            };
+            }
 
             // Start both implementations running in parallel
-            const oldPromise = executeMethod(oldImplementation);
-            const newPromise = executeMethod(newImplementation);
+            const oldPromise = executeMethod(oldImplementation)
+            const newPromise = executeMethod(newImplementation)
 
             // Determine which promise to wait for based on the mode
             const [primaryPromise, secondaryPromise] =
-              mode === "new-compare"
-                ? [newPromise, oldPromise]
-                : [oldPromise, newPromise];
+              mode === 'new-compare' ? [newPromise, oldPromise] : [oldPromise, newPromise]
 
             // Wait only for the primary promise to complete
-            const primaryResult = await primaryPromise;
+            const primaryResult = await primaryPromise
 
             // After getting the primary result, wait for the secondary promise to complete in the background
             // and call onComparison when both are done
@@ -256,35 +240,23 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
                 .catch((error) => error)
                 .then((secondaryResult) => {
                   const [oldResult, newResult] =
-                    mode === "new-compare"
+                    mode === 'new-compare'
                       ? [secondaryResult, primaryResult]
-                      : [primaryResult, secondaryResult];
+                      : [primaryResult, secondaryResult]
 
-                  const oldDuration = oldResult.duration;
-                  const newDuration = newResult.duration;
+                  const oldDuration = oldResult.duration
+                  const newDuration = newResult.duration
 
                   const oldValue =
-                    oldResult instanceof ExecutionError
-                      ? oldResult.cause
-                      : oldResult.result;
+                    oldResult instanceof ExecutionError ? oldResult.cause : oldResult.result
                   const newValue =
-                    newResult instanceof ExecutionError
-                      ? newResult.cause
-                      : newResult.result;
+                    newResult instanceof ExecutionError ? newResult.cause : newResult.result
 
                   try {
-                    const durationDifference = newDuration - oldDuration;
-                    const { isEqual, metadata } = fullConfig.equalityFn(
-                      oldValue,
-                      newValue,
-                      args
-                    );
+                    const durationDifference = newDuration - oldDuration
+                    const { isEqual, metadata } = fullConfig.equalityFn(oldValue, newValue, args)
 
-                    if (
-                      !isEqual ||
-                      durationDifference >
-                        fullConfig.acceptableDurationDifference
-                    ) {
+                    if (!isEqual || durationDifference > fullConfig.acceptableDurationDifference) {
                       onComparison({
                         oldResult: oldValue,
                         newResult: newValue,
@@ -293,40 +265,36 @@ export function Strangler<T extends AsyncService, K extends keyof T>(
                         methodName: prop,
                         parameters: args,
                         equalityMetadata: metadata,
-                      });
+                      })
                     }
                   } catch (error) {
                     fullConfig.logger.error?.(
-                      "[Strangler] Equality or comparison functions failed",
-                      { error }
-                    );
+                      '[Strangler] Equality or comparison functions failed',
+                      { error },
+                    )
                   }
-                });
+                })
 
               // If waitForComparison is true, wait for the secondary promise to complete before returning the result
               if (fullConfig.waitForComparison) {
-                await secondaryPromise.catch((error) => error);
+                await secondaryPromise.catch((error) => error)
               }
             }
 
             // Return the result from the primary implementation
-            return primaryResult.result;
+            return primaryResult.result
           }
 
           // Normal mode.
-          const useNew = mode === "new" && hasNewImplementation;
+          const useNew = mode === 'new' && hasNewImplementation
           const targetMethod = useNew
-            ? (newImplementation[prop as K] as AsyncFunction).bind(
-                newImplementation
-              )
-            : (oldImplementation[prop as K] as AsyncFunction).bind(
-                oldImplementation
-              );
-          return targetMethod(...args);
-        };
+            ? (newImplementation[prop as K] as AsyncFunction).bind(newImplementation)
+            : (oldImplementation[prop as K] as AsyncFunction).bind(oldImplementation)
+          return targetMethod(...args)
+        }
       }
 
-      return method;
+      return method
     },
-  });
+  })
 }
